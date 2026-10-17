@@ -1,31 +1,263 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Games World</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Games World</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 25px 15px;
+      background: lightblue;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      color: #17324d;
+    }
+
+    h1 {
+      color: #124e78;
+    }
+
+    .games {
+      max-width: 750px;
+      margin: 25px auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: white;
+      padding: 22px 15px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px #00000018;
+    }
+
+    button {
+      background: #1677d2;
+      color: white;
+      border: none;
+      padding: 11px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      margin: 5px;
+    }
+
+    button:hover {
+      background: #09549b;
+    }
+
+    input {
+      width: 100px;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #aaa;
+      border-radius: 7px;
+    }
+
+    #gameArea {
+      max-width: 500px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 15px;
+      display: none;
+    }
+
+    #message {
+      font-weight: bold;
+      min-height: 24px;
+    }
+  </style>
 </head>
 
 <body>
 
-    <h1>Welcome to Mini Games World!</h1>
+  <h1>🎮 Mini Games World</h1>
+  <p>Welcome! Choose your favourite game.</p>
 
-    <p>Play fun and exciting games here.</p>
+  <div class="games">
+    <div class="card">
+      <h2>🔢 Number Guessing</h2>
+      <p>Guess a number from 1 to 10.</p>
+      <button onclick="startGuess()">Play Now</button>
+    </div>
 
-    <h2>Our Games</h2>
+    <div class="card">
+      <h2>✊ Rock Paper Scissors</h2>
+      <p>Can you beat the computer?</p>
+      <button onclick="startRPS()">Play Now</button>
+    </div>
 
-    <h3>1. Number Guessing Game</h3>
-    <p>Guess the secret number and win!</p>
-    <button>Play Now</button>
+    <div class="card">
+      <h2>⭕ Tic-Tac-Toe</h2>
+      <p>Play X and O with a friend.</p>
+      <button onclick="startTicTacToe()">Play Now</button>
+    </div>
+  </div>
 
-    <h3>2. Rock Paper Scissors</h3>
-    <p>Challenge the computer to a game.</p>
-    <button>Play Now</button>
+  <div id="gameArea">
+    <h2 id="gameTitle">Game</h2>
+    <div id="gameContent"></div>
+    <p id="message"></p>
+    <button onclick="closeGame()">Close Game</button>
+  </div>
 
-    <h3>3. Tic-Tac-Toe</h3>
-    <p>Play this classic game with your friends.</p>
-    <button>Play Now</button>
-    <body style="background-color: lightblue;"></body>
+  <script>
+    const area = document.getElementById("gameArea");
+    const title = document.getElementById("gameTitle");
+    const content = document.getElementById("gameContent");
+    const message = document.getElementById("message");
+
+    function showGame(name) {
+      area.style.display = "block";
+      title.textContent = name;
+      content.innerHTML = "";
+      message.textContent = "";
+      area.scrollIntoView({ behavior: "smooth" });
+    }
+
+    function closeGame() {
+      area.style.display = "none";
+      content.innerHTML = "";
+    }
+
+    let secretNumber = 0;
+    let attempts = 0;
+
+    function startGuess() {
+      showGame("🔢 Number Guessing Game");
+      secretNumber = Math.floor(Math.random() * 10) + 1;
+      attempts = 0;
+
+      content.innerHTML = `
+        <p>Enter a number from 1 to 10:</p>
+        <input id="guessInput" type="number" min="1" max="10">
+        <button onclick="checkGuess()">Guess</button>
+        <button onclick="startGuess()">Restart</button>
+      `;
+    }
+
+    function checkGuess() {
+      const input = document.getElementById("guessInput");
+      const guess = Number(input.value);
+
+      if (input.value === "" || guess < 1 || guess > 10 ||
+          !Number.isInteger(guess)) {
+        message.textContent = "Enter a whole number from 1 to 10!";
+        return;
+      }
+
+      attempts++;
+
+      if (guess === secretNumber) {
+        message.textContent =
+          "🎉 Correct! You won in " + attempts + " tries!";
+      } else if (guess < secretNumber) {
+        message.textContent = "Too low! Try a bigger number.";
+      } else {
+        message.textContent = "Too high! Try a smaller number.";
+      }
+    }
+
+    function startRPS() {
+      showGame("✊ Rock Paper Scissors");
+
+      content.innerHTML = `
+        <p>Choose your move:</p>
+        <button onclick="playRPS('Rock')">✊ Rock</button>
+        <button onclick="playRPS('Paper')">✋ Paper</button>
+        <button onclick="playRPS('Scissors')">✌️ Scissors</button>
+      `;
+    }
+
+    function playRPS(player) {
+      const choices = ["Rock", "Paper", "Scissors"];
+      const computer = choices[Math.floor(Math.random() * 3)];
+
+      let result;
+
+      if (player === computer) {
+        result = "It's a draw!";
+      } else if (
+        (player === "Rock" && computer === "Scissors") ||
+        (player === "Paper" && computer === "Rock") ||
+        (player === "Scissors" && computer === "Paper")
+      ) {
+        result = "🎉 You win!";
+      } else {
+        result = "Computer wins! Try again.";
+      }
+
+      message.textContent =
+        "You: " + player + " | Computer: " + computer + " — " + result;
+    }
+
+    let board = [];
+    let currentPlayer = "X";
+    let gameOver = false;
+
+    function startTicTacToe() {
+      showGame("⭕ Tic-Tac-Toe");
+      board = ["", "", "", "", "", "", "", "", ""];
+      currentPlayer = "X";
+      gameOver = false;
+
+      content.innerHTML = `
+        <div id="board" style="
+          display:grid;
+          grid-template-columns:repeat(3,70px);
+          justify-content:center;
+          gap:5px;">
+          ${board.map((_, i) => `
+            <button id="cell${i}" onclick="makeMove(${i})"
+              style="height:65px;font-size:26px;margin:0;">
+            </button>
+          `).join("")}
+        </div>
+        <p>Two players take turns.</p>
+        <button onclick="startTicTacToe()">Restart</button>
+      `;
+
+      message.textContent = "Player X's turn";
+    }
+
+    function makeMove(index) {
+      if (board[index] !== "" || gameOver) return;
+
+      board[index] = currentPlayer;
+      document.getElementById("cell" + index).textContent = currentPlayer;
+
+      const wins = [
+        [0,1,2], [3,4,5], [6,7,8],
+        [0,3,6], [1,4,7], [2,5,8],
+        [0,4,8], [2,4,6]
+      ];
+
+      if (wins.some(line =>
+        line.every(i => board[i] === currentPlayer)
+      )) {
+        message.textContent = "🎉 Player " + currentPlayer + " wins!";
+        gameOver = true;
+        return;
+      }
+
+      if (board.every(cell => cell !== "")) {
+        message.textContent = "It's a draw!";
+        gameOver = true;
+        return;
+      }
+
+      currentPlayer = currentPlayer === "X" ? "O" : "X";
+      message.textContent = "Player " + currentPlayer + "'s turn";
+    }
+  </script>
+
 </body>
 </html>
